@@ -22,7 +22,6 @@ class IngredienteController extends Controller
      */
     public function store(IngredienteRequest $request)
     {
-
         $datos = $request->validated();
 
         $imagen = $request->imagen->store('img', "public");
@@ -35,35 +34,45 @@ class IngredienteController extends Controller
         ]);
 
         return [
-           "type" => "success",
-           "ingrediente" => $ingrediente,
-           "message" => "Ingrediente creado correctamente"
+            "type" => "success",
+            "ingrediente" => $ingrediente,
+            "message" => "Ingrediente creado correctamente"
         ];
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Ingrediente $ingrediente)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return $ingrediente;
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(IngredienteRequest $request, Ingrediente $ingrediente)
     {
-        //
+        $datos = $request->validated();
+        // Si se envió una nueva imagen, reemplazar la imagen existente
+        if ($request->hasFile('imagen')) {
+            $imagen = $request->imagen->store('img', 'public');
+            $datos['imagen'] = asset('storage/' . $imagen);
+        } else {
+
+            $datos['imagen'] = $ingrediente->imagen;
+        }
+        $ingrediente->update([
+            'nombre' => $datos['nombre'],
+            'imagen' => $datos['imagen'],
+            'descripcion' => $datos['descripcion']
+        ]);
+        return [
+            "type" => "success",
+            "message" => "Ingrediente actualizado correctamente"
+        ];
     }
+
 
     /**
      * Remove the specified resource from storage.
