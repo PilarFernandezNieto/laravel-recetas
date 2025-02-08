@@ -13,7 +13,6 @@ class IngredienteController extends Controller
      */
     public function index()
     {
-
         return new IngredienteCollection(Ingrediente::all());
     }
 
