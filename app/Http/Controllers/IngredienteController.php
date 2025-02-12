@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ingrediente;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\IngredienteRequest;
 use App\Http\Resources\IngredienteCollection;
-use App\Models\Ingrediente;
-use Illuminate\Http\Request;
 
 class IngredienteController extends Controller
 {
@@ -55,11 +55,12 @@ class IngredienteController extends Controller
     {
         $datos = $request->validated();
         // Si se envió una nueva imagen, reemplazar la imagen existente
+
         if ($request->hasFile('imagen')) {
+            $this->borraImagen($ingrediente->imagen);
             $imagen = $request->imagen->store('img', 'public');
             $datos['imagen'] = asset('storage/' . $imagen);
         } else {
-
             $datos['imagen'] = $ingrediente->imagen;
         }
         $ingrediente->update([
@@ -72,13 +73,32 @@ class IngredienteController extends Controller
             "message" => "Ingrediente actualizado correctamente"
         ];
     }
-
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Ingrediente $ingrediente)
     {
-        //
+
+        $this->borraImagen($ingrediente->imagen);
+
+        $ingrediente->delete();
+        return [
+            "type" => "success",
+            "message" => "Ingrediente eliminado correctamente"
+        ];
+    }
+
+    private function borraImagen($imagen)
+    {
+        $relativePath = str_replace(asset('storage') . '/', '', $imagen);
+
+        if (!$imagen) {
+            return;
+        }
+        if (Storage::disk('public')->exists($relativePath)) {
+            Storage::disk('public')->delete($relativePath);
+        } else {
+            return ["no existe"];
+        }
     }
 }
