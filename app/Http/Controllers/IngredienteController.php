@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ingrediente;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\IngredienteRequest;
 use App\Http\Resources\IngredienteCollection;
+use App\Traits\ImageHandler;
 
 class IngredienteController extends Controller
 {
+
+    use ImageHandler;
     /**
      * Display a listing of the resource.
      */
@@ -88,17 +90,5 @@ class IngredienteController extends Controller
         ];
     }
 
-    private function borraImagen($imagen)
-    {
-        $relativePath = str_replace(asset('storage') . '/', '', $imagen);
 
-        if (!$imagen) {
-            return;
-        }
-        if (Storage::disk('public')->exists($relativePath)) {
-            Storage::disk('public')->delete($relativePath);
-        } else {
-            return ["no existe"];
-        }
-    }
 }
